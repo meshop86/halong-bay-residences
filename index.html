@@ -376,7 +376,7 @@ h1,h2,h3,.font-display{font-family:var(--font-display);font-weight:600;letter-sp
 .fab svg{width:18px;height:18px}
 @media(max-width:760px){.fab{display:inline-flex}}
 
-.reveal{opacity:0;transform:translateY(36px)}
+.js-anim .reveal{opacity:0;transform:translateY(36px)}
 
 /* ─── Responsive ───────────────────────────────────── */
 @media(max-width:980px){
@@ -693,10 +693,10 @@ h1,h2,h3,.font-display{font-family:var(--font-display);font-weight:600;letter-sp
     <span class="eyebrow center light reveal">Quy Mô Aria Bay</span>
     <h2 class="reveal">Tháp đôi biểu tượng bên mặt tiền vịnh di sản</h2>
     <div class="stats-grid">
-      <div class="stat reveal"><div class="num"><span data-count="2">0</span></div><div class="lbl">Tòa tháp biểu tượng</div></div>
-      <div class="stat reveal"><div class="num"><span data-count="40">0</span></div><div class="lbl">Tầng cao</div></div>
-      <div class="stat reveal"><div class="num"><span data-count="2314">0</span></div><div class="lbl">Căn hộ & sản phẩm</div></div>
-      <div class="stat reveal"><div class="num"><span data-count="8">0</span></div><div class="lbl">Sky Villa giới hạn</div></div>
+      <div class="stat reveal"><div class="num"><span data-count="2">2</span></div><div class="lbl">Tòa tháp biểu tượng</div></div>
+      <div class="stat reveal"><div class="num"><span data-count="40">40</span></div><div class="lbl">Tầng cao</div></div>
+      <div class="stat reveal"><div class="num"><span data-count="2314">2.314</span></div><div class="lbl">Căn hộ & sản phẩm</div></div>
+      <div class="stat reveal"><div class="num"><span data-count="8">8</span></div><div class="lbl">Sky Villa giới hạn</div></div>
     </div>
   </div>
 </section>
@@ -1001,24 +1001,32 @@ h1,h2,h3,.font-display{font-family:var(--font-display);font-weight:600;letter-sp
     ok.classList.add('show');
   });
 
-  if(rm) return;
+  // Reveals & counters: progressive enhancement.
+  // Số liệu + nội dung đã hiển thị sẵn trong HTML; animation chỉ là phần thêm.
+  function showAll(){
+    document.querySelectorAll('.reveal,[data-hero]').forEach(function(el){ el.style.opacity=1; el.style.transform='none'; });
+  }
 
-  if(window.gsap && window.ScrollTrigger){
+  // Nếu bật "giảm chuyển động" hoặc GSAP không tải được → giữ nội dung tĩnh, hiển thị đầy đủ.
+  if(rm || !(window.gsap && window.ScrollTrigger)){ showAll(); return; }
+
+  try {
+    document.documentElement.classList.add('js-anim');
     gsap.registerPlugin(ScrollTrigger);
     gsap.from('[data-hero]', {y:40, opacity:0, duration:1, ease:'power3.out', stagger:.13, delay:.2});
     gsap.utils.toArray('.reveal').forEach(function(el){
-      gsap.to(el, {y:0, opacity:1, duration:.9, ease:'power3.out', scrollTrigger:{ trigger:el, start:'top 86%' }});
+      gsap.to(el, {y:0, opacity:1, duration:.9, ease:'power3.out', scrollTrigger:{ trigger:el, start:'top 92%' }});
     });
     gsap.to('.hero-video, .hero-poster', {yPercent:14, ease:'none', scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:true }});
     gsap.utils.toArray('[data-count]').forEach(function(el){
       var target = +el.getAttribute('data-count'), obj = {v:0};
-      ScrollTrigger.create({ trigger:el, start:'top 88%', once:true,
+      ScrollTrigger.create({ trigger:el, start:'top 95%', once:true,
         onEnter:function(){ gsap.to(obj, {v:target, duration:1.8, ease:'power2.out',
           onUpdate:function(){ el.textContent = Math.round(obj.v).toLocaleString('vi-VN'); }}); }});
     });
-  } else {
-    document.querySelectorAll('.reveal,[data-hero]').forEach(function(el){ el.style.opacity=1; el.style.transform='none'; });
-    document.querySelectorAll('[data-count]').forEach(function(el){ el.textContent = (+el.getAttribute('data-count')).toLocaleString('vi-VN'); });
+  } catch(e){
+    document.documentElement.classList.remove('js-anim');
+    showAll();
   }
 })();
 </script>
