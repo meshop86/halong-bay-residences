@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://meshop86.github.io/halong-bay-residences/sitemap.xml
