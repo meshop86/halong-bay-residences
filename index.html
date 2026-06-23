@@ -152,6 +152,20 @@ h1,h2,h3,.font-display{font-family:var(--font-display);font-weight:600;letter-sp
 .hero .sub{display:block;font-size:clamp(.78rem,2.2vw,1.05rem);letter-spacing:.46em;text-transform:uppercase;color:var(--gold-2);margin-top:1.4rem;font-weight:400;font-family:var(--font-display)}
 .hero .lead{margin-top:2rem;font-size:clamp(1rem,2vw,1.25rem);color:rgba(255,255,255,.9);font-weight:300;max-width:660px;margin-inline:auto;letter-spacing:.02em}
 .hero-cta{margin-top:2.6rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.sound-toggle{position:absolute;right:clamp(1.25rem,5vw,3rem);bottom:2.2rem;z-index:4;
+  width:48px;height:48px;border-radius:50%;border:1px solid var(--line-light);
+  background:rgba(27,15,21,.45);backdrop-filter:blur(8px);color:#fff;
+  display:grid;place-items:center;transition:background .3s,border-color .3s,transform .3s}
+.sound-toggle:hover{background:rgba(191,157,86,.9);border-color:var(--gold-2);color:var(--ink);transform:scale(1.06)}
+.sound-toggle svg{width:20px;height:20px}
+.sound-toggle .ico-on{display:none}
+.sound-toggle[aria-pressed="true"] .ico-on{display:block}
+.sound-toggle[aria-pressed="true"] .ico-off{display:none}
+.sound-toggle .hint{position:absolute;right:120%;top:50%;transform:translateY(-50%);white-space:nowrap;
+  background:rgba(27,15,21,.7);color:#fff;font-family:var(--font-display);font-size:.62rem;letter-spacing:.18em;
+  text-transform:uppercase;padding:.4rem .7rem;border-radius:2px;opacity:0;transition:opacity .3s;pointer-events:none}
+.sound-toggle:not([aria-pressed="true"]) .hint{opacity:1;animation:hintpulse 2.6s ease-in-out infinite}
+@keyframes hintpulse{0%,100%{opacity:.5}50%{opacity:1}}
 .scroll-cue{position:absolute;left:50%;bottom:2rem;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:.6rem;color:rgba(255,255,255,.7)}
 .scroll-cue span{font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;font-family:var(--font-display)}
 .scroll-cue .line{width:1px;height:46px;background:linear-gradient(var(--gold-2),transparent);overflow:hidden;position:relative}
@@ -553,6 +567,11 @@ h1,h2,h3,.font-display{font-family:var(--font-display);font-weight:600;letter-sp
     <span>Cuộn</span>
     <span class="line"></span>
   </a>
+  <button class="sound-toggle" id="soundToggle" aria-pressed="false" aria-label="Bật âm thanh video">
+    <span class="hint">Bật âm thanh</span>
+    <svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
+    <svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+  </button>
 </header>
 
 <main id="main">
@@ -948,6 +967,26 @@ h1,h2,h3,.font-display{font-family:var(--font-display);font-weight:600;letter-sp
       s.setAttribute('aria-expanded', !open);
     });
   });
+
+  var sound = document.getElementById('soundToggle');
+  var heroVid = document.querySelector('.hero-video');
+  if(sound && heroVid){
+    sound.addEventListener('click', function(){
+      var on = sound.getAttribute('aria-pressed') === 'true';
+      if(on){
+        heroVid.muted = true;
+        sound.setAttribute('aria-pressed','false');
+        sound.setAttribute('aria-label','Bật âm thanh video');
+      } else {
+        heroVid.muted = false;
+        heroVid.volume = 1;
+        var p = heroVid.play();
+        if(p && p.catch){ p.catch(function(){}); }
+        sound.setAttribute('aria-pressed','true');
+        sound.setAttribute('aria-label','Tắt âm thanh video');
+      }
+    });
+  }
 
   var form = document.getElementById('leadForm'), ok = document.getElementById('formOk');
   form.addEventListener('submit', function(e){
